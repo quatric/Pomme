@@ -122,9 +122,15 @@ add_library(${PROJECT_NAME} ${POMME_SOURCES})
 
 # Input and SoundManager require SDL3.
 # Linking with SDL3 will also expose its include directory to us.
+# POMME_SDL3_INCLUDE_DIR lets a platform overlay (e.g. the Wii port) supply
+# its own SDL3-compatible header shim instead of a real SDL3 package.
 if (NOT POMME_NO_INPUT OR NOT POMME_NO_SOUND_MIXER)
-	find_package(SDL3 REQUIRED)
-	target_link_libraries(${PROJECT_NAME} PUBLIC SDL3::SDL3)
+	if (DEFINED POMME_SDL3_INCLUDE_DIR)
+		target_include_directories(${PROJECT_NAME} PUBLIC ${POMME_SDL3_INCLUDE_DIR})
+	else()
+		find_package(SDL3 REQUIRED)
+		target_link_libraries(${PROJECT_NAME} PUBLIC SDL3::SDL3)
+	endif()
 endif()
 
 add_compile_definitions("$<$<CONFIG:DEBUG>:_DEBUG>")
